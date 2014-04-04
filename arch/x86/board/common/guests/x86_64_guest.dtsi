@@ -1,0 +1,65 @@
+
+/ {
+	templates {
+		x86_64_generic {
+			model = "x86_64_generic";
+			device_type = "guest";
+			guest_asid = <1>;
+
+			vcpus {
+				vcpu0 {
+					device_type = "vcpu";
+					compatible = "amd-k6";
+					start_pc = <0xff00>;
+				};
+			};
+
+			aspace {
+				guest_irq_count = <256>;
+
+				mem0 {
+					manifest_type = "real";
+					address_type = "memory";
+					guest_physical_addr = <0x00000000>;
+					host_physical_addr = <0x0c000000>;
+					physical_size = <0x04000000>;
+					device_type = "ram";
+				};
+
+				uart0 {
+					device_type = "serial";
+					compatible = "ns16550a";
+					manifest_type = "virtual";
+					address_type = "io";
+					guest_physical_addr = <0x2f8>;
+					physical_size = <0x100>;
+					fifo_size = <64>;
+					interrupts = <12>;
+				};
+
+				i440fx0 {
+					device_type = "pci-host-controller";
+					compatible = "i440fx";
+					manifest_type = "virtual";
+					address_type = "io";
+					guest_physical_addr = <0xcf8>;
+					physical_size = <8>;
+					nr_buses = <1>;
+					bus_start_id = <1>;
+
+					pci_bus1 {
+						devices {
+							psm {
+								device_type = "psm"; /* PCI Shared Memory */
+								compatible = "xpsm"; /* Xvisor PCI Shared Memory device */
+								manifest_type = "virtual";
+								address_type = "memory";
+								device_id = <1>;
+							};
+						};
+					};
+				};
+			};
+		};
+	};
+};
