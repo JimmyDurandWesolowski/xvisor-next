@@ -226,6 +226,13 @@ int vmm_guest_physical_map(struct vmm_guest *guest,
 		*reg_flags = reg->flags;
 	}
 
+	/* if (reg->flags & (VMM_REGION_ALIAS | VMM_REGION_PHYSALIAS)) */
+	/* 	vmm_printf("Mapping %s 0x%08X (0x%X) to 0x%08X (0x%X) (reg: " */
+	/* 		   "0x%08X, 0x%08X (0x%X))\n", */
+	/* 		   guest->name, gphys_addr, gphys_size, *hphys_addr, */
+	/* 		   *hphys_size, reg->hphys_addr, reg->gphys_addr, */
+	/* 		   reg->phys_size); */
+
 	return VMM_OK;
 }
 
@@ -246,19 +253,21 @@ bool is_region_node_valid(struct vmm_devtree_node *rnode)
 	physical_addr_t addr;
 	physical_size_t size;
 
-	if (vmm_devtree_read_string(rnode, 
+	if (vmm_devtree_read_string(rnode,
 			VMM_DEVTREE_MANIFEST_TYPE_ATTR_NAME, &aval)) {
 		return FALSE;
 	}
 	if (strcmp(aval, VMM_DEVTREE_MANIFEST_TYPE_VAL_REAL) != 0 &&
-	    strcmp(aval, VMM_DEVTREE_MANIFEST_TYPE_VAL_VIRTUAL) != 0 && 
-	    strcmp(aval, VMM_DEVTREE_MANIFEST_TYPE_VAL_ALIAS) != 0) {
+	    strcmp(aval, VMM_DEVTREE_MANIFEST_TYPE_VAL_VIRTUAL) != 0 &&
+	    strcmp(aval, VMM_DEVTREE_MANIFEST_TYPE_VAL_ALIAS) != 0 &&
+	    strcmp(aval, VMM_DEVTREE_MANIFEST_TYPE_VAL_PHYSALIAS)) {
 		return FALSE;
 	}
 	if (strcmp(aval, VMM_DEVTREE_MANIFEST_TYPE_VAL_REAL) == 0) {
 		is_real = TRUE;
 	}
-	if (strcmp(aval, VMM_DEVTREE_MANIFEST_TYPE_VAL_ALIAS) == 0) {
+	if (strcmp(aval, VMM_DEVTREE_MANIFEST_TYPE_VAL_ALIAS) == 0 ||
+	    strcmp(aval, VMM_DEVTREE_MANIFEST_TYPE_VAL_PHYSALIAS) == 0) {
 		is_alias = TRUE;
 	}
 
@@ -388,6 +397,8 @@ static int region_add(struct vmm_guest *guest,
 	} else if (!strcmp(aval,
 			VMM_DEVTREE_MANIFEST_TYPE_VAL_ALIAS)) {
 		reg->flags |= VMM_REGION_ALIAS;
+	} else if (!strcmp(aval, VMM_DEVTREE_MANIFEST_TYPE_VAL_PHYSALIAS)) {
+		reg->flags |= VMM_REGION_PHYSALIAS;
 	} else {
 		reg->flags |= VMM_REGION_VIRTUAL;
 	}
@@ -456,7 +467,7 @@ static int region_add(struct vmm_guest *guest,
 			vmm_free(reg);
 			return rc;
 		}
-	} else if (reg->flags & VMM_REGION_ALIAS) {
+	} else if (reg->flags & (VMM_REGION_ALIAS | VMM_REGION_PHYSALIAS)) {
 		rc = vmm_devtree_read_physaddr(rnode,
 				VMM_DEVTREE_ALIAS_PHYS_ATTR_NAME,
 				&reg->hphys_addr);
@@ -495,7 +506,8 @@ static int region_add(struct vmm_guest *guest,
 	}
 
 	/* Reserve host RAM for reserved RAM/ROM regions */
-	if (!(reg->flags & (VMM_REGION_ALIAS | VMM_REGION_VIRTUAL)) &&
+	if (!(reg->flags & (VMM_REGION_ALIAS | VMM_REGION_PHYSALIAS |
+			    VMM_REGION_VIRTUAL)) &&
 	    (reg->flags & (VMM_REGION_ISRAM | VMM_REGION_ISROM)) &&
 	    (reg->flags & VMM_REGION_ISRESERVED)) {
 		rc = vmm_host_ram_reserve(reg->hphys_addr,
@@ -513,7 +525,8 @@ static int region_add(struct vmm_guest *guest,
 	}
 
 	/* Allocate host RAM for alloced RAM/ROM regions */
-	if (!(reg->flags & (VMM_REGION_ALIAS | VMM_REGION_VIRTUAL)) &&
+	if (!(reg->flags & (VMM_REGION_ALIAS | VMM_REGION_PHYSALIAS |
+			    VMM_REGION_VIRTUAL)) &&
 	    (reg->flags & (VMM_REGION_ISRAM | VMM_REGION_ISROM)) &&
 	    (reg->flags & VMM_REGION_ISALLOCED)) {
 		if (!vmm_host_ram_alloc(&reg->hphys_addr,
@@ -537,6 +550,11 @@ static int region_add(struct vmm_guest *guest,
 			return rc;
 		}
 	}
+
+	vmm_printf("%s: for %s, node %s\n  guest addr 0x%08X, phys addr "
+		   "0x%08X, size 0x%08X, flags 0x%08X\n", __FUNCTION__,
+		   guest->name, rnode->name, reg->gphys_addr, reg->hphys_addr,
+		   reg->phys_size, reg->flags);
 
 	/* Add region to region list */
 	vmm_write_lock_irqsave_lite(&aspace->reg_list_lock, flags);
@@ -571,7 +589,8 @@ static int region_del(struct vmm_guest *guest,
 	}
 
 	/* Free host RAM if region has alloced/reserved host RAM */
-	if (!(reg->flags & (VMM_REGION_ALIAS | VMM_REGION_VIRTUAL)) &&
+	if (!(reg->flags & (VMM_REGION_ALIAS | VMM_REGION_PHYSALIAS |
+			    VMM_REGION_VIRTUAL)) &&
 	    (reg->flags & (VMM_REGION_ISRAM | VMM_REGION_ISROM)) &&
 	    (reg->flags & VMM_REGION_ISHOSTRAM)) {
 		rc = vmm_host_ram_free(reg->hphys_addr,
@@ -717,7 +736,9 @@ int vmm_guest_add_region(struct vmm_guest *guest,
 			goto failed_delnode;
 		}
 	} else if (!strcmp(mainfest_type,
-			   VMM_DEVTREE_MANIFEST_TYPE_VAL_ALIAS)) {
+			   VMM_DEVTREE_MANIFEST_TYPE_VAL_ALIAS) ||
+		   !strcmp(mainfest_type,
+			   VMM_DEVTREE_MANIFEST_TYPE_VAL_PHYSALIAS)) {
 		/* Set alias physical address */
 		rc = vmm_devtree_setattr(rnode,
 					 VMM_DEVTREE_ALIAS_PHYS_ATTR_NAME,
