@@ -59,6 +59,16 @@
 					device_type = "ram";
                                 };
 
+				sharedctrl {
+					manifest_type = "virtual";
+					address_type = "memory";
+					guest_physical_addr = <0x20000000>;
+					physical_size = <0x1000>;
+					device_type = "misc";
+					compatible = "gshmem";
+					interrupts = <42>;
+				};
+
 				sysctl {
 					manifest_type = "virtual";
 					address_type = "memory";
