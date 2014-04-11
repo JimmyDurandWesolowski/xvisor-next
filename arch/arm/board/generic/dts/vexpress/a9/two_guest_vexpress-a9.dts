@@ -24,53 +24,53 @@
 			  /* Update guest0 memory regions */
 			  "devtree attr set /guests/guest0/aspace/mem0 physical_size physsize 0x04000000",
 			  "devtree attr set /guests/guest0/aspace/mem1 host_physical_addr physaddr 0x62000000",
-			  "devtree attr set /guests/guest0/aspace/mem1 physical_size physsize 0x06000000",
+			  "devtree attr set /guests/guest0/aspace/mem1 physical_size physsize 0x1C000000",
 
 			  /* Update guest1 memory regions */
 			  "devtree attr set /guests/guest1/aspace/mem0 physical_size physsize 0x04000000",
-			  "devtree attr set /guests/guest1/aspace/mem1 host_physical_addr physaddr 0x68000000",
-			  "devtree attr set /guests/guest1/aspace/mem1 physical_size physsize 0x06000000",
+			  "devtree attr set /guests/guest1/aspace/mem1 host_physical_addr physaddr 0x80000000",
+			  "devtree attr set /guests/guest1/aspace/mem1 physical_size physsize 0x1C000000",
 
 
 			  /* Update guest0 videoram regions */
-			  "devtree attr set /guests/guest0/aspace/videoram host_physical_addr physaddr 0x6E000000",
+			  "devtree attr set /guests/guest0/aspace/videoram host_physical_addr physaddr 0x7E000000",
 			  "devtree attr set /guests/guest0/aspace/videoram physical_size physsize 0x00400000",
 
 			  /* Update guest1 videoram regions */
-			  "devtree attr set /guests/guest1/aspace/videoram host_physical_addr physaddr 0x6E800000",
+			  "devtree attr set /guests/guest1/aspace/videoram host_physical_addr physaddr 0x9C000000",
 			  "devtree attr set /guests/guest1/aspace/videoram physical_size physsize 0x00400000",
 
 
 			  /* Update guest0 flash region */
-			  "devtree attr set /guests/guest0/aspace/nor_flash0 host_physical_addr physaddr 0x6F000000",
+			  "devtree attr set /guests/guest0/aspace/nor_flash0 host_physical_addr physaddr 0x7E400000",
 			  "devtree attr set /guests/guest0/aspace/nor_flash0 physical_size physsize 0x00100000",
 
 			  /* Update guest1 flash region */
-			  "devtree attr set /guests/guest1/aspace/nor_flash0 host_physical_addr physaddr 0x6F100000",
+			  "devtree attr set /guests/guest1/aspace/nor_flash0 host_physical_addr physaddr 0x9E400000",
 			  "devtree attr set /guests/guest1/aspace/nor_flash0 physical_size physsize 0x00100000",
 
 
 			  /* Update guest0 sram regions */
-			  "devtree attr set /guests/guest0/aspace/sram host_physical_addr physaddr 0x6F200000",
+			  "devtree attr set /guests/guest0/aspace/sram host_physical_addr physaddr 0x7F000000",
 			  "devtree attr set /guests/guest0/aspace/sram physical_size physsize 0x00400000",
 
 			  /* Update guest1 sram regions */
-			  "devtree attr set /guests/guest1/aspace/sram host_physical_addr physaddr 0x6F600000",
+			  "devtree attr set /guests/guest1/aspace/sram host_physical_addr physaddr 0x9F000000",
 			  "devtree attr set /guests/guest1/aspace/sram physical_size physsize 0x00600000",
 
 
 			  /* Update guest0 shared memory region (writing part) */
-			  "devtree attr set /guests/guest0/aspace/sharedw host_physical_addr physaddr 0x6FC00000",
+			  "devtree attr set /guests/guest0/aspace/sharedw host_physical_addr physaddr 0x7FC00000",
 			  "devtree attr set /guests/guest0/aspace/sharedw physical_size physsize 0x00200000",
 
-			  "devtree attr set /guests/guest0/aspace/sharedr alias_physical_addr physaddr 0x6FE00000",
+			  "devtree attr set /guests/guest0/aspace/sharedr alias_physical_addr physaddr 0x9FC00000",
 			  "devtree attr set /guests/guest0/aspace/sharedr physical_size physsize 0x00200000",
 
 			  /* Update guest1 shared memory region (writing part) */
-			  "devtree attr set /guests/guest1/aspace/sharedw host_physical_addr physaddr 0x6FE00000",
+			  "devtree attr set /guests/guest1/aspace/sharedw host_physical_addr physaddr 0x9FC00000",
 			  "devtree attr set /guests/guest1/aspace/sharedw physical_size physsize 0x00200000",
 
-			  "devtree attr set /guests/guest1/aspace/sharedr alias_physical_addr physaddr 0x6FC00000",
+			  "devtree attr set /guests/guest1/aspace/sharedr alias_physical_addr physaddr 0x7FC00000",
 			  "devtree attr set /guests/guest1/aspace/sharedr physical_size physsize 0x00200000",
 
 

@@ -55,7 +55,7 @@ u32 arm_board_ram_start(void)
 
 u32 arm_board_ram_size(void)
 {
-	return 0x6000000;
+	return 0x1C000000;
 }
 
 u32 arm_board_linux_machine_type(void)

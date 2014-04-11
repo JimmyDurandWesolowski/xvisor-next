@@ -44,7 +44,7 @@
                                 sharedw {
 					manifest_type = "real";
 					address_type = "memory";
-					guest_physical_addr = <0x69000000>;
+					guest_physical_addr = <0x7C000000>;
 					host_physical_addr = <0x00000000>; /* To be set by DTS including this file */
 					physical_size = <0x00000000>; /* To be set by DTS including this file */
 					device_type = "ram";
@@ -53,7 +53,7 @@
                                 sharedr {
 					manifest_type = "physical_alias";
 					address_type = "memory";
-					guest_physical_addr = <0x69800000>;
+					guest_physical_addr = <0x7C800000>;
 					alias_physical_addr = <0x00000000>; /* To be set by DTS including this file */
 					physical_size = <0x00000000>; /* To be set by DTS including this file */
 					device_type = "ram";
