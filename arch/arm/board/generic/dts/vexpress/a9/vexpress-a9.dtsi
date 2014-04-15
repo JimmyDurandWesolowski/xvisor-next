@@ -4,6 +4,7 @@
 	#size-cells = <1>;
 	compatible = "arm,vexpress";
 	model = "vexpress-a9";
+	interrupt-parent = <&gic>;
 
 	chosen { };
 	aliases { };
@@ -61,11 +62,11 @@
       		reg = <0x1E000000 0x1000>;
 	};
 
-	gic { /* Generic Interrupt Controller */
+	gic: interrupt-controller@0e001000 { /* Generic Interrupt Controller */
       		device_type = "pic";
       		compatible = "arm,cortex-a9-gic";
       		reg = <0x1E001000 0x1000
-		       0x1E000100 0x1000>;
+		       0x1E000100 0x0100>;
 		irq_start = <29>;
 	};
 
@@ -328,6 +329,6 @@
 };
 
 /* Add guest templates */
-/include/ "../../../../common/guests/realview-pb-a8.dtsi"
+/* /include/ "../../../../common/guests/realview-pb-a8.dtsi" */
 /include/ "../../../../common/guests/vexpress-a9x2.dtsi"
 
