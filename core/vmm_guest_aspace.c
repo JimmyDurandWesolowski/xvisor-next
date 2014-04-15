@@ -320,7 +320,8 @@ bool is_region_node_valid(struct vmm_devtree_node *rnode)
 }
 
 static bool is_region_overlapping(struct vmm_guest *guest,
-				  struct vmm_region *reg)
+				  struct vmm_region *reg,
+				  struct vmm_region **overlapping)
 {
 	bool ret = FALSE;
 	struct dlist *l;
@@ -348,10 +349,18 @@ static bool is_region_overlapping(struct vmm_guest *guest,
 		treg_start = treg->gphys_addr;
 		treg_end = treg->gphys_addr + treg->phys_size;
 		if ((treg_start <= reg_start) && (reg_start < treg_end)) {
+			if (overlapping)
+				*overlapping = treg;
+			vmm_printf("Status 1: 0x%08X 0x%08X 0x%08X\n", treg_start,
+				   reg_start, treg_end);
 			ret = TRUE;
 			break;
 		}
 		if ((treg_start < reg_end) && (reg_end < treg_end)) {
+			if (overlapping)
+				*overlapping = treg;
+			vmm_printf("Status 2: %d %d\n", treg_start <= reg_end,
+				   reg_end < treg_end);
 			ret = TRUE;
 			break;
 		}
@@ -369,6 +378,7 @@ static int region_add(struct vmm_guest *guest,
 	const char *aval;
 	irq_flags_t flags;
 	struct vmm_region *reg = NULL;
+	struct vmm_region *ovrlp = NULL;
 	struct vmm_guest_aspace *aspace = &guest->aspace;
 
 	/* Sanity check on region node */
@@ -497,10 +507,14 @@ static int region_add(struct vmm_guest *guest,
 	reg->devemu_priv = NULL;
 
 	/* Ensure region does not overlap other regions */
-	if (is_region_overlapping(guest, reg)) {
-		vmm_printf("%s: Region for %s/%s overlapping with "
-			   "a previous node\n", __func__, 
-			   guest->name, rnode->name);
+	if (is_region_overlapping(guest, reg, &ovrlp)) {
+		vmm_printf("%s: Region for %s/%s (0x%08X - 0x%08X) "
+			   "overlaps with region %s/%s (0x%08X - 0x%08X)\n",
+			   __func__, guest->name, rnode->name, reg->hphys_addr,
+			   reg->hphys_addr + reg->phys_size,
+			   ovrlp->aspace->guest->name, ovrlp->node->name,
+			   ovrlp->hphys_addr, ovrlp->hphys_addr +
+			   ovrlp->phys_size);
 		vmm_free(reg);
 		return VMM_EINVALID;
 	}
