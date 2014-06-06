@@ -29,12 +29,84 @@
  */
 #include <vmm_error.h>
 #include <vmm_devtree.h>
+#include <vmm_host_io.h>
+#include <vmm_main.h>
 
 #include <generic_board.h>
 
 /*
  * Initialization functions
  */
+
+#define IMX2_WDT_WCR		0x00		/* Control Register */
+#define IMX2_WDT_WCR_WT		(0xFF << 8)	/* -> Watchdog Timeout Field */
+#define IMX2_WDT_WCR_WRE	(1 << 3)	/* -> WDOG Reset Enable */
+#define IMX2_WDT_WCR_WDE	(1 << 2)	/* -> Watchdog Enable */
+
+#define IMX2_WDT_WSR		0x02		/* Service Register */
+#define IMX2_WDT_SEQ1		0x5555		/* -> service sequence 1 */
+#define IMX2_WDT_SEQ2		0xAAAA		/* -> service sequence 2 */
+
+#define IMX2_WDT_WRSR		0x04		/* Reset Status Register */
+#define IMX2_WDT_WRSR_TOUT	(1 << 1)	/* -> Reset due to Timeout */
+
+#define IMX2_WDT_MAX_TIME	128
+#define IMX2_WDT_DEFAULT_TIME	60		/* in seconds */
+
+#define WDOG_SEC_TO_COUNT(s)	((s * 2 - 1) << 8)
+
+#define IMX2_WDT_STATUS_OPEN	0
+#define IMX2_WDT_STATUS_STARTED	1
+#define IMX2_WDT_EXPECT_CLOSE	2
+
+static inline void imx2_wdt_setup(virtual_addr_t wdog_base, u8 timeout)
+{
+	u16 val = vmm_readw((void*)(wdog_base + IMX2_WDT_WCR));
+
+	/* Strip the old watchdog Time-Out value */
+	val &= ~IMX2_WDT_WCR_WT;
+	/* Generate reset if WDOG times out */
+	val &= ~IMX2_WDT_WCR_WRE;
+	/* Keep Watchdog Disabled */
+	val &= ~IMX2_WDT_WCR_WDE;
+	/* Set the watchdog's Time-Out value */
+	val |= WDOG_SEC_TO_COUNT(timeout);
+
+	vmm_writew(val, (void*)(wdog_base + IMX2_WDT_WCR));
+
+	/* enable the watchdog */
+	val |= IMX2_WDT_WCR_WDE;
+	vmm_writew(val, (void*)(wdog_base + IMX2_WDT_WCR));
+}
+
+static inline void imx2_wdt_ping(virtual_addr_t wdog_base)
+{
+	vmm_writew(IMX2_WDT_SEQ1, (void*)(wdog_base + IMX2_WDT_WSR));
+	vmm_writew(IMX2_WDT_SEQ2, (void*)(wdog_base + IMX2_WDT_WSR));
+}
+
+static int imx_reset(struct vmm_devtree_node *node)
+{
+	int rc = 0;
+	virtual_addr_t wdog_base = 0;
+
+	/* TODO: Create a watchdog driver */
+	/* Determine the watchdog register map */
+	node = vmm_devtree_find_compatible(NULL, NULL, "fsl,imx6q-wdt");
+	if (!node) {
+		return VMM_ENODEV;
+	}
+
+	rc = vmm_devtree_regmap(node, &wdog_base, 0);
+	if (rc) {
+		return rc;
+	}
+
+	imx2_wdt_setup(wdog_base, 0);
+	imx2_wdt_ping(wdog_base);
+
+	return VMM_OK;
+}
 
 static int __init imx6_early_init(struct vmm_devtree_node *node)
 {
@@ -56,6 +128,7 @@ static int __init imx6_early_init(struct vmm_devtree_node *node)
 	/* if (node) { */
 	/* 	node->system_data = &clcd_system_data; */
 	/* } */
+	vmm_register_system_reset(imx_reset);
 
 	return 0;
 }
