@@ -14,10 +14,11 @@
 /include/ "imx6q.dtsi"
 
 / {
-	model = "Freescale i.MX6 Quad SABRE Lite Board";
-	compatible = "fsl,imx6q-nitrogen6x", "fsl,imx6q";
 	#address-cells = <0x1>;
 	#size-cells = <0x1>;
+	model = "Freescale i.MX6 Quad SABRE Lite Board";
+	compatible = "fsl,imx6q-nitrogen6x", "fsl,imx6q";
+	interrupt-parent = <&gic>;
 
 	memory {
 		device_type = "memory";

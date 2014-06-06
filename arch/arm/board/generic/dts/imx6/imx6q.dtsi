@@ -992,9 +992,10 @@
 				compatible = "fsl,imx6q-uart", "freescale,imx-uart";
 				reg = <0x021e8000 0x4000>;
 				interrupts = <0 27 0x04>;
+				clock-frequency = <16000000>;
 				clocks = <&clks 160>, <&clks 161>;
 				clock-names = "ipg", "per";
-				status = "disabled";
+				status = "enabled";
 			};
 
 			uart3: serial@021ec000 {

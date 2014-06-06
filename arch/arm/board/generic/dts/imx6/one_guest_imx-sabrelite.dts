@@ -15,7 +15,7 @@
 
 / {
 	chosen {
-		console = &uart1;
+		console = &uart2;
 		bootcmd = "";
 	};
 };
