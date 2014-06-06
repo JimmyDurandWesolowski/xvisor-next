@@ -11,7 +11,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-/* /include/ "imx6q.dtsi" */
+/include/ "imx6q.dtsi"
 
 / {
 	model = "Freescale i.MX6 Quad SABRE Lite Board";
@@ -19,10 +19,10 @@
 	#address-cells = <0x1>;
 	#size-cells = <0x1>;
 
-	/* memory { */
-	/* 	device_type = "memory"; */
-	/* 	reg = <0x10000000 0x40000000>; /\* 1 GB *\/ */
-	/* }; */
+	memory {
+		device_type = "memory";
+		reg = <0x10000000 0x40000000>; /* 1 GB */
+	};
 
 	/* soc { */
 	/* 	aips-bus@02000000 { /\* AIPS1 *\/ */
