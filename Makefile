@@ -254,6 +254,7 @@ deps-y+=$(commands-y:.o=.dep)
 deps-y+=$(daemons-y:.o=.dep)
 deps-y+=$(drivers-y:.o=.dep)
 deps-y+=$(emulators-y:.o=.dep)
+deps-y+=$(dtbs-y:.dtb=.dep)
 
 # Setup list of deps files for module objects
 deps-y+=$(core-m:.o=.dep)
