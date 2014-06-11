@@ -23,6 +23,7 @@
 
 #include <libs/bitops.h>
 #include <libs/mathlib.h>
+#include <vmm_stdio.h>
 
 #if !defined(ARCH_HAS_DIVISON_OPERATION)
 
@@ -87,6 +88,7 @@ u64 do_udiv64(u64 dividend, u64 divisor, u64 * remainder)
 	u64 quotient, remaind;
 
 	if (divisor == 0) {
+		vmm_printf("Division by 0, hanging!\n");
 		while (1);
 	}
 

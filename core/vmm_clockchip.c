@@ -184,6 +184,8 @@ struct vmm_clockchip *vmm_clockchip_find_best(const struct vmm_cpumask *mask)
 
 	vmm_spin_lock_irqsave(&ccctrl.lock, flags);
 
+	if (list_empty(&ccctrl.clkchip_list))
+		vmm_printf("Clock list is empty!\n");
 	list_for_each(l, &ccctrl.clkchip_list) {
 		cc = list_entry(l, struct vmm_clockchip, head);
 		if ((cc->rating > rating) &&
