@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 Jimmy Durand Wesolowski.
+ * Copyright (c) 2014 OpenWide.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
