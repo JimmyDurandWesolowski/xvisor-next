@@ -68,6 +68,8 @@
       		device_type = "scu";
       		compatible = "arm,cortex-a9-scu";
       		reg = <0x00a00000 0xFC>;
+		#address-cells = <1>;
+		#size-cells = <1>;
 		ranges;
 
 		global-timer@00a00200 {
@@ -76,7 +78,7 @@
 			/* Note that the reg attribute expects 2 sets */
 			compatible = "arm,cortex-a9-twd-timer";
 			reg = <0x00a00200 0x100>;
-			clocks = <&perclk>;
+			/* clocks = <&perclk>; */
 			interrupts = <27>;
 		};
 
