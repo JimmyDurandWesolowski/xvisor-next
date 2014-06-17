@@ -520,6 +520,6 @@ static void __init imx6q_clocks_init(struct device_node *ccm_node)
 		vmm_printf("Failed to find GPT IRQ\n");
 		return;
 	}
-	mxc_timer_init(base, irq);
+	/* mxc_timer_init(base, irq); */
 }
 CLK_OF_DECLARE(imx6q, "fsl,imx6q-ccm", imx6q_clocks_init);
