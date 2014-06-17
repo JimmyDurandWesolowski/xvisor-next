@@ -76,16 +76,16 @@
 			/* http://infocenter.arm.com/help/index.jsp?
 			   topic=/com.arm.doc.ddi0407f/CIHGECHJ.html */
 			/* Note that the reg attribute expects 2 sets */
-			compatible = "arm,cortex-a9-twd-timer";
+			compatible = "arm,cortex-a9-global-timer";
 			reg = <0x00a00200 0x100>;
-			clocks = <&clks 0>;
+			clocks = <&clks 3>;
 			interrupts = <27>;
 		};
 
 		private-timer@00a00600 {
 			/*http://infocenter.arm.com/help/index.jsp?
 			  topic=/com.arm.doc.ddi0407f/JHBHIGCC.html */
-			compatible = "arm,cortex-a9-twd-timer";
+			compatible = "arm,cortex-a9-private-timer";
 			reg = <0x00a00600 0x20>;
 			clock-frequency = <66000000>;
 			interrupts = <29>;
@@ -191,7 +191,7 @@
 
 			epit@020d0000 {
 				device_type = "epit1";
-				compatible = "arm,cortex-a9-twd-timer", "freescale,epit-timer";
+				compatible = "freescale,epit-timer";
 				reg = <0x020d0000 0x14>;
 				/* interrupts = <0 56 0x04>; */
 				interrupts = <88>;
@@ -201,7 +201,7 @@
 
 			epit@020d4000 {
 				device_type = "epit2";
-				compatible = "arm,cortex-a9-twd-timer", "freescale,epit-timer";
+				compatible = "freescale,epit-timer";
 				reg = <0x020d4000 0x14>;
 				/* interrupts = <0 57 0x04>; */
 				interrupts = <89>;
