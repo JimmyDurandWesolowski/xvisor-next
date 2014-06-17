@@ -75,4 +75,5 @@ cpu-objs-y+= cpu_vcpu_mem.o
 cpu-objs-y+= cpu_vcpu_irq.o
 cpu-objs-y+= cpu_vcpu_hypercall_arm.o
 cpu-objs-y+= cpu_vcpu_hypercall_thumb.o
-
+cpu-objs-y+= lib1funcs.o
+cpu-objs-y+= traps.o
