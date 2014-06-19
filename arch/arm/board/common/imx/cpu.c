@@ -68,7 +68,7 @@ struct device * __init imx_soc_device_init(void)
 	struct device_node *root;
 	const char *soc_id;
 	char* revision = NULL;
-	int ret;
+	/* int ret; */
 
 	soc_dev_attr = kzalloc(sizeof(*soc_dev_attr), GFP_KERNEL);
 	if (!soc_dev_attr)
@@ -131,14 +131,8 @@ struct device * __init imx_soc_device_init(void)
 		goto free_soc;
 	}
 
-	if (VMM_OK != (ret = sprintf(revision, "%d.%d",
-				     (imx_soc_revision >> 4) & 0xf,
-				     imx_soc_revision & 0xf)))
-	{
-		vmm_printf("Failed to set SOC revision\n");
-		goto free_rev;
-	}
-
+	snprintf(revision, 6, "%d.%d", (imx_soc_revision >> 4) & 0xf,
+		 imx_soc_revision & 0xf);
 	soc_dev_attr->revision = revision;
 
 	/* soc_dev = soc_device_register(soc_dev_attr); */
@@ -149,8 +143,8 @@ struct device * __init imx_soc_device_init(void)
 	vmm_printf("soc_device_register not implemented yet\n");
 	return NULL;
 
-free_rev:
-	kfree(revision);
+/* free_rev: */
+/* 	kfree(revision); */
 free_soc:
 	kfree(soc_dev_attr);
 	return NULL;
