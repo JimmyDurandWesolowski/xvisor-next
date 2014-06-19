@@ -31,10 +31,18 @@
 #include <vmm_devtree.h>
 #include <vmm_host_io.h>
 #include <vmm_main.h>
+#include <vmm_chardev.h>
 
 #include <generic_board.h>
 #include <imx-common.h>
 #include <imx-hardware.h>
+
+static void imx6_print_info(struct vmm_chardev *cdev)
+{
+	imx_print_silicon_rev(cpu_is_imx6dl() ? "i.MX6DL" : "i.MX6Q",
+			      imx_get_soc_revision());
+}
+
 
 static void __init imx6q_init_irq(void)
 {
@@ -88,6 +96,7 @@ static struct generic_board imx6_info = {
 	.name		= "iMX6",
 	.early_init	= imx6_early_init,
 	.final_init	= imx6_final_init,
+	.print_info	= imx6_print_info,
 };
 
 GENERIC_BOARD_DECLARE(imx6, "fsl,imx6q", &imx6_info);

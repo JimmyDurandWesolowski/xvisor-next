@@ -45,9 +45,28 @@ static const struct vmm_devtree_nodeid *generic_board_matches;
  * Print board information
  */
 
+static void generic_board_print_info(struct vmm_devtree_node *node,
+				    const struct vmm_devtree_nodeid *match,
+				    void *data)
+{
+	const struct generic_board *brd = match->data;
+	struct vmm_chardev *cdev = data;
+
+	if (!brd || !brd->print_info) {
+		return;
+	}
+
+	brd->print_info(cdev);
+}
+
 void arch_board_print_info(struct vmm_chardev *cdev)
 {
-	/* FIXME: To be implemented. */
+	if (generic_board_matches) {
+		vmm_devtree_iterate_matching(NULL,
+					     generic_board_matches,
+					     generic_board_print_info,
+					     cdev);
+	}
 }
 
 /*
