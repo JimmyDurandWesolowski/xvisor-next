@@ -97,6 +97,7 @@ static void cmd_memory_usage(struct vmm_chardev *cdev)
 						"<val0> <val1> ...\n");
 	vmm_cprintf(cdev, "   memory copy     <phys_addr> <src_phys_addr> "
 						"<byte_count>\n");
+	vmm_cprintf(cdev, "   memory mapping\n");
 }
 
 static int cmd_memory_dump(struct vmm_chardev *cdev,
@@ -367,6 +368,17 @@ static int cmd_memory_copy(struct vmm_chardev *cdev,
 	return VMM_OK;
 }
 
+int __weak arch_mapping_dump(struct vmm_chardev *cdev)
+{
+	vmm_cprintf(cdev, "This command is not implemented on this architecture.\n");
+	return VMM_EFAIL;
+}
+
+static int cmd_memory_mapping(struct vmm_chardev *cdev)
+{
+	return arch_mapping_dump(cdev);
+}
+
 static int cmd_memory_exec(struct vmm_chardev *cdev, int argc, char **argv)
 {
 	u32 tmp;
@@ -379,6 +391,8 @@ static int cmd_memory_exec(struct vmm_chardev *cdev, int argc, char **argv)
 			if (strcmp(argv[1], "help") == 0) {
 				cmd_memory_usage(cdev);
 				return VMM_OK;
+			} else if (strcmp(argv[1], "mapping") == 0) {
+				return cmd_memory_mapping(cdev);
 			} else {
 				cmd_memory_usage(cdev);
 				return VMM_EFAIL;

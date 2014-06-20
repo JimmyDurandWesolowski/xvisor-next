@@ -1865,3 +1865,135 @@ int __cpuinit arch_cpu_aspace_secondary_init(void)
 	return VMM_OK;
 }
 
+#define L1_PAGE_TABLE_SIZE	(1 << (32 - (TTBL_L1TBL_TTE_OFFSET_SHIFT)))
+#define L2_PAGE_TABLE_SIZE	\
+	(1 << ((TTBL_L1TBL_TTE_OFFSET_SHIFT) - (TTBL_L2TBL_TTE_OFFSET_SHIFT)))
+
+int arch_mapping_dump_l2tte(virtual_addr_t l2tte,
+			    u32 l1_offset,
+			    u32 l2_offset)
+{
+	u32 l2tte_ap = 0;
+	u32 l2tte_type = 0;
+	physical_addr_t pa = 0;
+	virtual_addr_t va = 0;
+
+	l2tte_type = l2tte & TTBL_L2TBL_TTE_TYPE_MASK;
+	if (!l2tte_type)
+		return VMM_OK;
+
+	l2tte_ap = (l2tte & TTBL_L2TBL_TTE_AP2_MASK) >> TTBL_L2TBL_TTE_AP2_SHIFT;
+	l2tte_ap <<= 2;
+	l2tte_ap |= (l2tte & TTBL_L2TBL_TTE_AP_MASK) >> TTBL_L2TBL_TTE_AP_SHIFT;
+	vmm_printf("    L2 TTE %03d ", l2_offset);
+
+	switch (l2tte_ap) {
+	case TTBL_AP_S_U:
+		vmm_printf("S-- U--:  ");
+		break;
+	case TTBL_AP_SRW_U:
+		vmm_printf("SRW U--:  ");
+		break;
+	case TTBL_AP_SRW_UR:
+		vmm_printf("SRW UR-:  ");
+		break;
+	case TTBL_AP_SRW_URW:
+		vmm_printf("SRW URW:  ");
+		break;
+	case TTBL_AP_SR_U:
+		vmm_printf("SR- U--:  ");
+		break;
+	case TTBL_AP_SR_UR_DEPRECATED:
+		vmm_printf("SR- UR-*: ");
+		break;
+	case TTBL_AP_SR_UR:
+		vmm_printf("SR- UR-:  ");
+		break;
+	default:
+		vmm_printf("SXX UXX:  ");
+		break;
+	}
+
+	switch (l2tte_type) {
+	case TTBL_L2TBL_TTE_TYPE_LARGE:
+		vmm_printf("Large page  ");
+		break;
+	case TTBL_L2TBL_TTE_TYPE_SMALL:
+		vmm_printf("Small page  ");
+		break;
+	case TTBL_L2TBL_TTE_TYPE_TINY:
+		vmm_printf("Tiny page   ");
+		break;
+	default:
+		vmm_printf("Unknown page");
+		break;
+	}
+
+	pa = l2tte & TTBL_L2TBL_TTE_BASE12_MASK;
+	va = (l1_offset << TTBL_L1TBL_TTE_OFFSET_SHIFT) |
+		(l2_offset << TTBL_L2TBL_TTE_OFFSET_SHIFT);
+	vmm_printf(": PA 0x%08X -> VA 0x%08X\n", pa, va);
+
+	return VMM_OK;
+}
+
+int arch_mapping_dump_l1tte(virtual_addr_t l1tte,
+			    u32 offset)
+{
+	int ret = VMM_OK;
+	u32 i = 0;
+	u32 l1tte_type = 0;
+	u32 l1tte_dom = 0;
+	virtual_addr_t *l2tbl_va = NULL;
+	struct cpu_l2tbl *l2tbl = NULL;
+
+	l1tte_type = l1tte & TTBL_L1TBL_TTE_TYPE_MASK;
+	if (!l1tte_type)
+		return VMM_OK;
+
+	l1tte_dom = (l1tte & TTBL_L1TBL_TTE_DOM_MASK) >> TTBL_L1TBL_TTE_DOM_SHIFT;
+
+	vmm_printf("  L1 TTE %04d ", offset);
+	if (TTBL_L1TBL_TTE_DOM_VCPU_SUPER == l1tte_dom) {
+		vmm_printf("(S)");
+	} else if (TTBL_L1TBL_TTE_DOM_VCPU_SUPER_RW_USER_R == l1tte_dom) {
+		vmm_printf("(B)");
+	} else if (TTBL_L1TBL_TTE_DOM_VCPU_USER == l1tte_dom) {
+		vmm_printf("(U)");
+	} else {
+		vmm_printf("(R)");
+	}
+
+	vmm_printf(" ");
+	if (TTBL_L1TBL_TTE_TYPE_L2TBL == l1tte_type) {
+		vmm_printf("L2 page table\n");
+
+		l2tbl = cpu_mmu_l2tbl_find_tbl_pa(l1tte);
+		for (i = 0; (i < L2_PAGE_TABLE_SIZE) && (VMM_OK == ret); ++i) {
+			l2tbl_va = (virtual_addr_t *)l2tbl->tbl_va;
+			ret = arch_mapping_dump_l2tte(l2tbl_va[i], offset, i);
+		}
+	} else if (TTBL_L1TBL_TTE_TYPE_SECTION == l1tte_type) {
+		vmm_printf("Section\n");
+	} else if (TTBL_L1TBL_TTE_TYPE_RESERVED == l1tte_type) {
+		vmm_printf("Reserved\n");
+	}
+	return ret;
+}
+
+int arch_mapping_dump(struct vmm_chardev *cdev)
+{
+	int ret = VMM_OK;
+	u32 i = 0;
+	virtual_addr_t *l1tte = (virtual_addr_t *)mmuctrl.defl1.tbl_pa;
+
+	vmm_printf("Hypervisor table: 0x%0X\n", l1tte);
+	while (i < L1_PAGE_TABLE_SIZE)
+	{
+		ret = arch_mapping_dump_l1tte(l1tte[i], i);
+		if (VMM_OK != ret)
+			break;
+		++i;
+	}
+	return ret;
+}
