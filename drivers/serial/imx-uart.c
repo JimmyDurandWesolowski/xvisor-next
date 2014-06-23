@@ -204,7 +204,8 @@ static void imx_txint(struct imx_port *port)
 {
 	port->mask &= ~UCR1_TRDYEN;
 	vmm_writel(port->mask, (void *)port->base + UCR1);
-	vmm_completion_complete(&port->write_possible);
+	vmm_completion_complete_all(&port->write_possible);
+	REINIT_COMPLETION(&port->write_possible);
 }
 #endif
 
@@ -296,7 +297,7 @@ static void imx_putc_sleepable(struct imx_port *port, u8 ch)
 {
 	/* Wait until there is space in the FIFO */
 	if (!imx_lowlevel_can_putc(port->base)) {
-		/* Enable the RX interrupt */
+		/* Enable the TX interrupt */
 		port->mask |= UCR1_TRDYEN;
 		vmm_writel(port->mask, (void *)port->base + UCR1);
 		/* Wait for completion */
@@ -408,11 +409,6 @@ static int imx_driver_probe(struct vmm_device *dev,
 	if (rc) {
 		goto free_irq;
 	}
-
-#if defined(CONFIG_UART_IMX_USE_TXINTR)
-	port->mask |= UCR1_TRDYEN;
-	vmm_writel(port->mask, (void *)port->base + UCR1);
-#endif
 
 	dev->priv = port;
 
