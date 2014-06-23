@@ -28,7 +28,7 @@
 #define tostring(s)		#s
 #define barrier() 		__asm__ __volatile__("": : :"memory")
 
-#define __always_inline 	__attribute__((always_inline))
+#define __always_inline 	inline __attribute__((always_inline))
 #define __unused		__attribute__((unused))
 #define __used			__attribute__((used))
 #define __aligned(x)		__attribute__((aligned(x)))
