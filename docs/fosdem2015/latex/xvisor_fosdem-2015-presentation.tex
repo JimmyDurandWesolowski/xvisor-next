@@ -14,6 +14,7 @@
 \usepackage{multirow}
 
 \newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\definecolor{grey}{rgb}{0.7,0.7,0.7}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Notes de précision pour les diapositives de présentation
@@ -110,8 +111,8 @@
             Xen\newline
             Xvisor\newline
             %% FIXME -> grey
-            KVM\newline
-            BHyVe
+            {\color{grey}KVM\newline
+            BHyVe}
           \end{center}
         \end{nbox}
       }
@@ -522,7 +523,7 @@
   \begin{myframe}[2][The needs]{More about}{The project}{c}
     \begin{minipage}{0.4\textwidth}
       \begin{nbox}{Driver needs}
-        \begin{itemize}[<+->]
+        \begin{itemize}
         \item Car safety - Advanced Driver Assistance System (ADAS)
         \item Multimedia system - Infotainment
         \item Comfort
