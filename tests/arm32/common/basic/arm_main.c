@@ -821,6 +821,10 @@ void arm_main(void)
 
 	arm_board_init();
 
+#ifdef AUTOEXEC_AUTORUN
+	arm_cmd_autoexec(1, NULL);
+#endif /* AUTOEXEC_AUTORUN */
+
 	while(1) {
 		arm_puts("basic# ");
 
