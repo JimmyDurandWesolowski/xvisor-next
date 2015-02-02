@@ -41,7 +41,10 @@ board_objs       = $(obj_dir)/arm_board.o \
 board_fdt_support = y
 board_smp	 = y
 
-board_cppflags   =
+ifdef AUTORUN
+board_cppflags   = -DAUTOEXEC_AUTORUN
+endif
+
 board_cflags     = -mcpu=cortex-a9
 board_asflags    = -mcpu=cortex-a9
 board_ldflags    =
