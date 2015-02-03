@@ -1,0 +1,12 @@
+		Linux driver quick porting recommendations
+
+
+The whole point is to keep the diff between original Linux driver and ported
+driver to minimum. This will help someone else to update the driver or driver
+framework later.
+
+1. Don't use "//" or "/* */" comments to disable code, instead prefer "#if 0"
+2. Don't comment out header include lines if linux header does not exist,
+   instead create place-holder linux compatible header
+3. When changing function prototypes try to keep original function prototype
+   using "#if 0"
