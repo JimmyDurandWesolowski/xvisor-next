@@ -41,3 +41,6 @@ We choose method b) only if corresponding Linux driver
 framework is too bulky. We choose method c) if Linux
 driver framework is not complex but we might end-up
 using driver framework from too many non-driver locations.
+
+If we have code that include both Xvisor headers and Linux compatible header
+then all Xvisor header should be include before Linux compatible headers.
