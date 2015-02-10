@@ -39,6 +39,12 @@
 #define __weak			__attribute__((weak))
 #define __mustcheck		__attribute__((warn_unused_result))
 
+#if defined(WARN_DEPRECATED)
+#define __deprecated		__attribute__((deprecated))
+#else
+#define __deprecated
+#endif
+
 #define __section(S)		__attribute__((section(#S)))
 #define __read_mostly		__section(".readmostly.data")
 #define __lock			__section(".spinlock.text")
