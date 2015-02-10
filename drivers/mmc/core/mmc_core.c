@@ -1168,7 +1168,10 @@ static int __mmc_detect_card_inserted(struct mmc_host *host)
 	rc = __mmc_send_if_cond(host, host->card);
 
 	/* Now try to get the SD card's operating condition */
-	rc = __sd_send_op_cond(host, host->card);
+	if (VMM_OK != (rc = __sd_send_op_cond(host, host->card))) {
+		/* Retry */
+		rc = __sd_send_op_cond(host, host->card);
+	}
 
 	/* If the command timed out, we check for MMC card */
 	if ((rc == VMM_ETIMEDOUT) || (rc == VMM_ENODEV)) {
