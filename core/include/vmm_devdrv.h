@@ -129,6 +129,23 @@ static inline void vmm_devdrv_set_data(struct vmm_device *dev, void *data)
 	}
 }
 
+static inline int vmm_devdrv_for_each_child(struct vmm_device *dev,
+					    void *data,
+					    int (*fn)(struct vmm_device *dev,
+						      void *data))
+{
+	int err = 0;
+	struct vmm_device *child = NULL;
+	struct vmm_device *temp = NULL;
+
+	list_for_each_entry_safe(child, temp, &dev->child_list, child_head) {
+		if (VMM_OK != (err = fn(child, data)))
+			return err;
+	}
+
+	return VMM_OK;
+}
+
 /** get the dma_mask from device */
 static inline u64 vmm_dma_get_mask(struct vmm_device *dev)
 {
