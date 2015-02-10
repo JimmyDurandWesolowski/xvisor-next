@@ -53,7 +53,7 @@
 #define	MODULE_EXIT			cmd_vfs_exit
 
 #define VFS_MAX_FDT_SZ			(32*1024)
-#define VFS_LOAD_BUF_SZ			256
+#define VFS_LOAD_BUF_SZ			4096
 
 static void cmd_vfs_usage(struct vmm_chardev *cdev)
 {
