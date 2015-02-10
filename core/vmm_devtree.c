@@ -1857,6 +1857,57 @@ u32 vmm_devtree_is_available(struct vmm_devtree_node *node)
 	return 0;
 }
 
+int vmm_devtree_alias_get_id(struct vmm_devtree_node *node,
+			     const char *stem)
+{
+	struct vmm_devtree_attr *attr;
+	struct vmm_devtree_node *aliases;
+
+	aliases = vmm_devtree_getnode("/aliases");
+	if (!aliases) {
+		return VMM_ENODEV;
+	}
+
+	vmm_devtree_for_each_attr(attr, aliases) {
+		const char *start = attr->name;
+		const char *end = start + strlen(start);
+		struct vmm_devtree_node *np;
+		int len;
+
+		/* Skip those we do not want to proceed */
+		if (!strcmp(attr->name, "name") ||
+		    !strcmp(attr->name, "phandle") ||
+		    !strcmp(attr->name, "linux,phandle")) {
+			continue;
+		}
+
+		/* walk the alias backwards to extract the id and work out
+		 * the 'stem' string */
+		while (isdigit(*(end-1)) && end > start) {
+			end--;
+		}
+		len = end - start;
+
+		if (strncmp(stem, start, len)) {
+			continue;
+		}
+
+		/* FIXME: Is this correct? */
+		np = vmm_devtree_getnode(attr->value);
+		if (!np) {
+			continue;
+		}
+
+		if (node != np) {
+			continue;
+		}
+
+		return atoi(end);
+	}
+
+	return VMM_ENODEV;
+}
+
 int vmm_devtree_regsize(struct vmm_devtree_node *node,
 		        physical_size_t *size, int regset)
 {
