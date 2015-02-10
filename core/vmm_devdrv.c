@@ -1417,6 +1417,43 @@ struct vmm_driver *vmm_devdrv_bus_driver(struct vmm_bus *bus, int index)
 	return d;
 }
 
+int vmm_devdrv_bus_driver_iterate(struct vmm_bus *bus,
+			struct vmm_driver *start, void *data,
+			int (*fn)(struct vmm_driver *dev, void *data))
+{
+	int rc = VMM_OK;
+	bool start_found = (start) ? FALSE : TRUE;
+	struct vmm_driver *d = NULL;
+
+	if (!bus || !fn) {
+		return VMM_EINVALID;
+	}
+	if (start && start->bus != bus) {
+		return VMM_EINVALID;
+	}
+
+	vmm_mutex_lock(&bus->lock);
+
+	list_for_each_entry(d, &bus->driver_list, head) {
+		if (!start_found) {
+			if (start && start == d) {
+				start_found = TRUE;
+			} else {
+				continue;
+			}
+		}
+
+		rc = fn(d, data);
+		if (rc) {
+			break;
+		}
+	}
+
+	vmm_mutex_unlock(&bus->lock);
+
+	return rc;
+}
+
 u32 vmm_devdrv_bus_driver_count(struct vmm_bus *bus)
 {
 	u32 retval;
