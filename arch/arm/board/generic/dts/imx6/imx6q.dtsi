@@ -536,7 +536,7 @@
 				#size-cells = <0>;
 				compatible = "fsl,imx6q-i2c", "fsl,imx21-i2c";
 				reg = <0x021a0000 0x4000>;
-				interrupts = <0 36 0x04>;
+				interrupts = <68>;
 				clocks = <&clks 125>;
 				status = "disabled";
 			};
@@ -546,7 +546,7 @@
 				#size-cells = <0>;
 				compatible = "fsl,imx6q-i2c", "fsl,imx21-i2c";
 				reg = <0x021a4000 0x4000>;
-				interrupts = <0 37 0x04>;
+				interrupts = <69>;
 				clocks = <&clks 126>;
 				status = "disabled";
 			};
@@ -556,7 +556,7 @@
 				#size-cells = <0>;
 				compatible = "fsl,imx6q-i2c", "fsl,imx21-i2c";
 				reg = <0x021a8000 0x4000>;
-				interrupts = <0 38 0x04>;
+				interrupts = <70>;
 				clocks = <&clks 127>;
 				status = "disabled";
 			};
