@@ -45,8 +45,8 @@ static void cmd_i2c_usage(struct vmm_chardev *cdev)
 {
 	vmm_cprintf(cdev, "Usage:\n");
 	vmm_cprintf(cdev, "   i2c list - Display i2c device list\n");
-	vmm_cprintf(cdev, "   i2c detect <id> - Detect i2c client "
-		    "devices on I2C bus \"id\"\n");
+	vmm_cprintf(cdev, "   i2c detect <id> [quick|read] - Detect i2c "
+		    "client devices on I2C bus \"id\"\n");
 	vmm_cprintf(cdev, "   i2c funcs <id> - Get i2c bus \"id\" "
 		    "functionalities\n");
 }
@@ -128,7 +128,6 @@ static int cmd_i2c_common(struct vmm_chardev *cdev,
 #define MODE_AUTO	0
 #define MODE_QUICK	1
 #define MODE_READ	2
-#define MODE_FUNC	3
 
 static int i2c_scan_bus(struct vmm_chardev *cdev,
 			struct i2c_adapter *adap,
@@ -215,6 +214,16 @@ static int cmd_i2c_detect(struct vmm_chardev *cdev,
 		return err;
 	}
 
+	if (argc >= 4) {
+		if (!strcmp(argv[3], "read")) {
+			mode = MODE_READ;
+		} else if (!strcmp(argv[3], "quick")) {
+			mode = MODE_QUICK;
+		} else {
+			vmm_cprintf(cdev, "Unknown mode %s\n", mode);
+		}
+	}
+
 	if (!(funcs & (I2C_FUNC_SMBUS_QUICK | I2C_FUNC_SMBUS_READ_BYTE))) {
 		vmm_cprintf(cdev, "Error: Bus doesn't support detection "
 			    "commands\n");
@@ -252,10 +261,7 @@ static int cmd_i2c_detect(struct vmm_chardev *cdev,
 		goto out;
 	}
 
-	i2c_lock_adapter(adap);
 	err = i2c_scan_bus(cdev, adap, mode, funcs, first, last);
-	i2c_unlock_adapter(adap);
-
 out:
 	i2c_put_adapter(adap);
 
