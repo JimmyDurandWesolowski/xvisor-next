@@ -122,6 +122,38 @@ static inline void set_dev_node(struct device *dev, int node) { }
 #define dev_WARN_ONCE(dev, condition, format, arg...)	\
 	dev_warn(dev, format, ##arg)
 
+/**
+ * module_driver() - Helper macro for drivers that don't do anything
+ * special in module init/exit. This eliminates a lot of boilerplate.
+ * Each module may only use this macro once, and calling it replaces
+ * module_init() and module_exit().
+ *
+ * @__driver: driver name
+ * @__register: register function for this driver type
+ * @__unregister: unregister function for this driver type
+ * @...: Additional arguments to be passed to __register and __unregister.
+ *
+ * Use this macro to construct bus specific macros for registering
+ * drivers, and do not use it on its own.
+ */
+#define module_driver(__desc, __author, __license, __ipriority,	\
+		      __driver, __register, __unregister, ...)	\
+static int __init __driver##_init(void)				\
+{								\
+	return __register(&(__driver) , ##__VA_ARGS__);		\
+}								\
+static void __exit __driver##_exit(void)			\
+{								\
+	__unregister(&(__driver) , ##__VA_ARGS__);		\
+}								\
+VMM_DECLARE_MODULE(__desc,					\
+		   __author,					\
+		   __license,					\
+		   __ipriority,					\
+		   __driver##_init,				\
+		   __driver##_exit);
+
+
 /* interface for exporting device attributes */
 
 #endif /* _LINUX_DEVICE_H */

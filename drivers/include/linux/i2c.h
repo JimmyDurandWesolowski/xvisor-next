@@ -208,9 +208,6 @@ struct i2c_driver {
 	int (*detect)(struct i2c_client *, struct i2c_board_info *);
 	const unsigned short *address_list;
 	struct list_head clients;
-#if 0
-	struct dlist clients;
-#endif /* 0 */
 };
 #define to_i2c_driver(d) container_of(d, struct i2c_driver, driver)
 
@@ -574,9 +571,9 @@ static inline int i2c_adapter_id(struct i2c_adapter *adap)
  * init/exit. This eliminates a lot of boilerplate. Each module may only
  * use this macro once, and calling it replaces module_init() and module_exit()
  */
-#define module_i2c_driver(__i2c_driver) \
-	module_driver(__i2c_driver, i2c_add_driver, \
-			i2c_del_driver)
+#define module_i2c_driver(__desc, __author, __license, __i2c_driver)  \
+	module_driver(__desc, __author, __license, I2C_IPRIORITY + 1, \
+		      __i2c_driver, i2c_add_driver, i2c_del_driver)
 
 #endif /* I2C */
 
