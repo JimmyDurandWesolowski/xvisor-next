@@ -502,6 +502,10 @@ static int devdrv_probe(struct vmm_devtree_node *node,
 	dev->release = platform_device_release;
 	dev->priv = NULL;
 
+	vmm_printf("Registering device %s, bus %s\n", dev->name,
+		   dev->bus->name);
+	if (dev->parent)
+		vmm_printf("Parent bus: %s\n", dev->parent->bus->name);
 	rc = vmm_devdrv_register_device(dev);
 	if (rc) {
 		vmm_free(dev);
@@ -1099,7 +1103,8 @@ static int devdrv_bus_register_device(struct vmm_bus *bus,
 				   VMM_BUS_NOTIFY_ADD_DEVICE, dev);
 
 	/* Bus probe this device */
-	__bus_probe_this_device(bus, dev);
+	if (dev->parent && dev->node != dev->parent->node)
+		__bus_probe_this_device(bus, dev);
 
 	vmm_mutex_unlock(&bus->lock);
 
@@ -1306,6 +1311,8 @@ int vmm_devdrv_bus_register_driver(struct vmm_bus *bus,
 	INIT_LIST_HEAD(&drv->head);
 	list_add_tail(&drv->head, &bus->driver_list);
 
+	vmm_printf("Registering driver %s, bus %s\n", drv->name,
+		   drv->bus->name);
 	/* Bus probe this driver */
 	__bus_probe_this_driver(bus, drv);
 
