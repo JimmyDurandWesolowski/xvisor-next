@@ -34,6 +34,7 @@ struct vmm_waitqueue {
 	vmm_spinlock_t lock;
 	struct dlist vcpu_list;
 	u32 vcpu_count;
+	struct vmm_vcpu *vcpu_race;
 	void *priv;
 };
 
@@ -41,6 +42,7 @@ struct vmm_waitqueue {
 				INIT_SPIN_LOCK(&((wqptr)->lock)); \
 				INIT_LIST_HEAD(&((wqptr)->vcpu_list)); \
 				(wqptr)->vcpu_count = 0; \
+				(wqptr)->vcpu_race = NULL; \
 				(wqptr)->priv = (p); \
 				} while (0);
 
@@ -49,6 +51,7 @@ struct vmm_waitqueue {
 			.lock = __SPINLOCK_INITIALIZER((wq).lock), \
 			.vcpu_list = { &(wq).vcpu_list, &(wq).vcpu_list }, \
 			.vcpu_count = 0, \
+			.vcpu_race = NULL, \
 			.priv = (p), \
 		}
 

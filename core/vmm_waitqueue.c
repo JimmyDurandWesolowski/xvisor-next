@@ -45,6 +45,7 @@ int __vmm_waitqueue_sleep(struct vmm_waitqueue *wq, u64 *timeout_nsecs)
 	int rc = VMM_OK;
 	struct vmm_vcpu *vcpu;
 	struct vmm_timer_event wake_event;
+	int do_not_pause = FALSE;
 
 	/* Sanity checks */
 	BUG_ON(!wq);
@@ -74,9 +75,26 @@ int __vmm_waitqueue_sleep(struct vmm_waitqueue *wq, u64 *timeout_nsecs)
 
 	/* Unlock waitqueue */
 	vmm_spin_unlock_irq(&wq->lock);
-	
-	/* Try to Pause VCPU */
-	rc = vmm_manager_vcpu_pause(vcpu);
+
+	/* Test if we got the interrupt here and tried to reschedule
+	 * ourself, in that case, we don't want to pause the VCPU
+	 */
+
+	/* Lock waitqueue */
+	vmm_spin_lock_irq(&wq->lock);
+	if (wq->vcpu_race == vcpu) {
+		do_not_pause = TRUE;
+		/* clear for next run */
+		rc = VMM_EALREADY;
+	}
+	wq->vcpu_race = NULL;
+	/* Unlock waitqueue */
+	vmm_spin_unlock_irq(&wq->lock);
+
+	if (!do_not_pause) {
+		/* Try to Pause VCPU */
+		rc = vmm_manager_vcpu_pause(vcpu);
+	}
 
 	/* Lock waitqueue */
 	vmm_spin_lock_irq(&wq->lock);
@@ -221,6 +239,8 @@ int __vmm_waitqueue_wakefirst(struct vmm_waitqueue *wq)
 
 	/* Try to Resume VCPU */
 	if ((rc = vmm_manager_vcpu_resume(vcpu))) {
+		// We got a vcpu from the list but it is not paused yet !
+		wq->vcpu_race = vcpu;
 		/* Return Failure */
 		return rc;
 	}
