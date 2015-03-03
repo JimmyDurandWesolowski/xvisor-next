@@ -28,6 +28,7 @@
 #include <vmm_modules.h>
 #include <vmm_spinlocks.h>
 #include <vmm_completion.h>
+#include <vmm_threads.h>
 #include <arch_atomic.h>
 #include <vio/vmm_keymaps.h>
 #include <libs/list.h>
@@ -1228,6 +1229,23 @@ static int vscreen_cleanup(struct vscreen_context *cntx)
 	return VMM_OK;
 }
 
+int vscreen_thread(void *data)
+{
+	int rc = VMM_OK;
+	struct vscreen_context *cntx = data;
+
+	/* Process work until some one signals exit */
+	vscreen_process(cntx);
+
+	/* Cleanup vscreen */
+	rc = vscreen_cleanup(cntx);
+
+	/* Free vscreen context */
+	vmm_free(cntx);
+
+	return rc;
+}
+
 int vscreen_bind(bool is_hard,
 		 u32 refresh_rate,
 		 u32 esc_key_code0,
@@ -1240,6 +1258,8 @@ int vscreen_bind(bool is_hard,
 {
 	int rc;
 	struct vscreen_context *cntx;
+	struct vmm_thread *vthread = NULL;
+	char name[VMM_FIELD_NAME_SIZE];
 
 	/* Can be called from Orphan (or Thread) context only */
 	BUG_ON(!vmm_scheduler_orphan_context());
@@ -1278,16 +1298,16 @@ int vscreen_bind(bool is_hard,
 		return rc;
 	}
 
-	/* Process work until some one signals exit */
-	vscreen_process(cntx);
+	vmm_snprintf(name, sizeof (name), "%s binding", info->name);
+	vthread = vmm_threads_create(name, vscreen_thread, cntx,
+				     VMM_THREAD_DEF_PRIORITY,
+				     VMM_THREAD_DEF_TIME_SLICE);
+	if (!vthread) {
+		vmm_free(cntx);
+		return VMM_EFAIL;
+	}
 
-	/* Cleanup vscreen */
-	rc = vscreen_cleanup(cntx);
-
-	/* Free vscreen context */
-	vmm_free(cntx);
-
-	return rc;
+	return vmm_threads_start(vthread);
 }
 VMM_EXPORT_SYMBOL(vscreen_bind);
 
