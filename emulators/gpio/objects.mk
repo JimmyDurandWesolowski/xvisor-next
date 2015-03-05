@@ -22,4 +22,5 @@
 # */
 
 emulators-objs-$(CONFIG_EMU_GPIO_PL061)+= gpio/pl061.o
+emulators-objs-$(CONFIG_EMU_GPIO_PL061_DUMMY)+= gpio/pl061_dummy.o
 
