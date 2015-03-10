@@ -66,8 +66,8 @@
 			guest_physical_addr = <0x10009000>;
 			physical_size = <0x1000>;
 			device_type = "serial";
-			compatible = "primecell,arm,pl011";
-			fifo_size = <1024>;
+			compatible = "pl011_imx";
+			host_uart = "uart1";
 			interrupts = <37>;
 		};
 
