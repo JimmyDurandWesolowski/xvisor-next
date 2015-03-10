@@ -25,6 +25,8 @@
 #define __IMX_UART_H
 
 #include <vmm_types.h>
+#include <vmm_completion.h>
+#include <vmm_chardev.h>
 
 /* Register definitions */
 #define URXD0 0x0		/* Receiver Register */
@@ -139,6 +141,19 @@
 #define UTS_TXFULL	(1<<4) /* TxFIFO full */
 #define UTS_RXFULL	(1<<3) /* RxFIFO full */
 #define UTS_SOFTRST	(1<<0) /* Software reset */
+
+struct imx_port {
+	struct vmm_chardev cd;
+	struct vmm_completion read_possible;
+#if defined(UART_IMX_USE_TXINTR)
+	struct vmm_completion write_possible;
+#endif
+	virtual_addr_t base;
+	u32 baudrate;
+	u32 input_clock;
+	u32 irq;
+	u16 mask;
+};
 
 bool imx_lowlevel_can_getc(virtual_addr_t base);
 u8 imx_lowlevel_getc(virtual_addr_t base);

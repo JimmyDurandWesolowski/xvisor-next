@@ -71,19 +71,6 @@
  */
 #define MCTRL_TIMEOUT	(250*HZ/1000)
 
-struct imx_port {
-	struct vmm_chardev cd;
-	struct vmm_completion read_possible;
-#if defined(UART_IMX_USE_TXINTR)
-	struct vmm_completion write_possible;
-#endif
-	virtual_addr_t base;
-	u32 baudrate;
-	u32 input_clock;
-	u32 irq;
-	u16 mask;
-};
-
 bool imx_lowlevel_can_getc(virtual_addr_t base)
 {
 	u32 status = vmm_readl((void *)(base + IMX21_UTS));
@@ -250,8 +237,8 @@ static u8 imx_getc_sleepable(struct imx_port *port)
 	return imx_lowlevel_getc(port->base);
 }
 
-static u32 imx_read(struct vmm_chardev *cdev,
-		    u8 *dest, size_t len, off_t __unused *off, bool sleep)
+u32 imx_read(struct vmm_chardev *cdev,
+	     u8 *dest, size_t len, off_t __unused *off, bool sleep)
 {
 	u32 i;
 	struct imx_port *port;
@@ -295,8 +282,8 @@ static void imx_putc_sleepable(struct imx_port *port, u8 ch)
 }
 #endif
 
-static u32 imx_write(struct vmm_chardev *cdev,
-		     u8 *src, size_t len, off_t __unused *off, bool sleep)
+u32 imx_write(struct vmm_chardev *cdev,
+	      u8 *src, size_t len, off_t __unused *off, bool sleep)
 {
 	u32 i;
 	struct imx_port *port;
