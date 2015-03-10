@@ -574,6 +574,8 @@
 			SERIAL1: uart1 {
 				compatible = "freescale,imx-uart";
 				reg = <0x02020000 0x4000>;
+                                clocks = <&clks 160>, <&clks 161>;
+                                clock-names = "ipg", "per";
 				clock-frequency = <80000000>;
 				interrupts = <58>;
 			};
@@ -581,6 +583,8 @@
 			SERIAL2: uart2 {
 				compatible = "freescale,imx-uart";
 				reg = <0x021e8000 0x4000>;
+                                clocks = <&clks 160>, <&clks 161>;
+                                clock-names = "ipg", "per";
 				clock-frequency = <80000000>;
 				interrupts = <59>;
 			};
@@ -588,6 +592,8 @@
 			SERIAL3: uart3 {
 				compatible = "freescale,imx-uart";
 				reg = <0x021ec000 0x4000>;
+                                clocks = <&clks 160>, <&clks 161>;
+                                clock-names = "ipg", "per";
 				clock-frequency = <80000000>;
 				interrupts = <60>;
 			};
@@ -595,6 +601,8 @@
 			SERIAL4: uart4 {
 				compatible = "freescale,imx-uart";
 				reg = <0x021f0000 0x4000>;
+                                clocks = <&clks 160>, <&clks 161>;
+                                clock-names = "ipg", "per";
 				clock-frequency = <80000000>;
 				interrupts = <61>;
 			};
@@ -602,6 +610,8 @@
 			SERIAL5: uart5 {
 				compatible = "freescale,imx-uart";
 				reg = <0x021f4000 0x4000>;
+                                clocks = <&clks 160>, <&clks 161>;
+                                clock-names = "ipg", "per";
 				clock-frequency = <80000000>;
 				interrupts = <62>;
 			};
