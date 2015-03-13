@@ -283,12 +283,28 @@ static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx, int for_busy)
 
 static int i2c_imx_trx_complete(struct imx_i2c_struct *i2c_imx)
 {
+#if 0
 	wait_event_timeout(i2c_imx->queue, i2c_imx->i2csr & I2SR_IIF, HZ / 10);
 
 	if (unlikely(!(i2c_imx->i2csr & I2SR_IIF))) {
 		dev_dbg(&i2c_imx->adapter.dev, "<%s> Timeout\n", __func__);
 		return -ETIMEDOUT;
 	}
+#endif /* 0 */
+	u32 timeout = 1000;
+
+	while (!(i2c_imx->i2csr & I2SR_IIF)) {
+		if (0 == timeout)
+			break;
+		mdelay(1);
+		--timeout;
+	}
+
+	if (0 == timeout) {
+		dev_dbg(&i2c_imx->adapter.dev, "<%s> Timeout\n", __func__);
+		return -ETIMEDOUT;
+	}
+
 	dev_dbg(&i2c_imx->adapter.dev, "<%s> TRX complete\n", __func__);
 	i2c_imx->i2csr = 0;
 	return 0;
@@ -425,7 +441,7 @@ static irqreturn_t i2c_imx_isr(int irq, void *dev_id)
 		temp &= ~I2SR_IIF;
 		temp |= (i2c_imx->hwdata->i2sr_clr_opcode & I2SR_IIF);
 		imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2SR);
-		wake_up(&i2c_imx->queue);
+		/* wake_up(&i2c_imx->queue); */
 		return IRQ_HANDLED;
 	}
 
