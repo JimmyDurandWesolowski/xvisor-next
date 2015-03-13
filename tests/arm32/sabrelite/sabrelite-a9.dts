@@ -17,11 +17,11 @@
 			start_pc = <0x81000000>;
 		};
 
-		vcpu1 {
-			device_type = "vcpu";
-			compatible = "armv7a,cortex-a9";
-			start_pc = <0x81000000>;
-		};
+		/* vcpu1 { */
+		/* 	device_type = "vcpu"; */
+		/* 	compatible = "armv7a,cortex-a9"; */
+		/* 	start_pc = <0x81000000>; */
+		/* }; */
 	};
 
 	aspace {
@@ -328,27 +328,27 @@
 			manifest_type = "real";
 			address_type = "memory";
 			guest_physical_addr = <0x40000000>;
-			physical_size = <0x01000000>;
+			physical_size = <0x02000000>;
 			device_type = "alloced_rom";
 			align_order = <21>; /* Align alloced memory to 2MB */
 		};
 
-		sram {
-			manifest_type = "real";
-			address_type = "memory";
-			guest_physical_addr = <0x48000000>;
-			physical_size = <0x02000000>;
-			device_type = "alloced_ram";
-			align_order = <21>; /* Align alloced memory to 2MB */
-		};
+		/* sram { */
+		/* 	manifest_type = "real"; */
+		/* 	address_type = "memory"; */
+		/* 	guest_physical_addr = <0x48000000>; */
+		/* 	physical_size = <0x02000000>; */
+		/* 	device_type = "alloced_ram"; */
+		/* 	align_order = <21>; /\* Align alloced memory to 2MB *\/ */
+		/* }; */
 
-		videoram {
-			manifest_type = "real";
-			address_type = "memory";
-			guest_physical_addr = <0x4C000000>;
-			physical_size = <0x00800000>;
-			device_type = "alloced_ram";
-			align_order = <21>; /* Align alloced memory to 2MB */
-		};
+		/* videoram { */
+		/* 	manifest_type = "real"; */
+		/* 	address_type = "memory"; */
+		/* 	guest_physical_addr = <0x4C000000>; */
+		/* 	physical_size = <0x00800000>; */
+		/* 	device_type = "alloced_ram"; */
+		/* 	align_order = <21>; /\* Align alloced memory to 2MB *\/ */
+		/* }; */
 	};
 };
