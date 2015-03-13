@@ -44,8 +44,8 @@
 
 			/* Load guest0 images */
 			"vfs guest_load_list guest1 /images/arm32/sabrelite/nor_flash_fw.list",
-			/* "guest kick guest0", */
-			/* "guest kick guest1", */
+
+			"guest kick guest1",
 
 			"vfs umount /";
 
