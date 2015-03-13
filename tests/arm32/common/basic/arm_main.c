@@ -811,7 +811,10 @@ void arm_exec(char *line)
 /* Works in user mode */
 void arm_main(void)
 {
-	char line[ARM_MAX_CMD_STR_SIZE];
+	u64 tstamp = 0;
+	u32 cpt = 0;
+	char buf[24];
+	/* char line[ARM_MAX_CMD_STR_SIZE]; */
 
 	/* Setup board specific linux default cmdline */
 	arm_board_linux_default_cmdline(cmdline, sizeof(cmdline));
@@ -825,11 +828,13 @@ void arm_main(void)
 	arm_cmd_autoexec(1, NULL);
 #endif /* AUTOEXEC_AUTORUN */
 
+	arm_timer_enable();
+	tstamp = arm_timer_timestamp();
 	while(1) {
-		arm_puts("basic# ");
-
-		arm_gets(line, ARM_MAX_CMD_STR_SIZE, '\n');
-
-		arm_exec(line);
+		if (arm_timer_timestamp() - tstamp < 100000000000L)
+			continue;
+		tstamp = arm_timer_timestamp();
+		arm_sprintf(buf, "%u\n", cpt++);
+		arm_puts(buf);
 	}
 }
